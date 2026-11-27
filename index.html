@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>한눈에 알아보는 간식 정보</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#372b23;background:#f8f1e5;font-size:18px}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 20%,#fffaf2 0 80px,transparent 81px),radial-gradient(circle at 90% 58%,#fffaf2 0 100px,transparent 101px),#f8f1e5}main{max-width:880px;margin:auto;padding:0 18px 70px}
+    h1{font-size:clamp(2rem,5vw,3rem);margin:0 0 8px;letter-spacing:-.05em}h2{font-size:1.35rem;margin:0 0 14px}p{line-height:1.5}
+    .muted{color:#68584b}.box{background:#fffdf8;border:1px solid #dcc7aa;border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 7px 0 #ead9c2,0 12px 25px #65452a12}
+    .storefront{position:relative;margin:0 -18px 28px;padding:78px 28px 30px;background:#fffdf8;border:1px solid #ddc5a5;border-top:0;border-radius:0 0 22px 22px;box-shadow:0 8px 0 #e5ceb0;text-align:center;overflow:hidden}
+    .storefront::before{content:"";position:absolute;inset:0 0 auto;height:52px;background:repeating-linear-gradient(90deg,#bb4d3d 0 56px,#fff9ed 56px 112px);border-bottom:7px solid #8d392e;border-radius:0 0 14px 14px}
+    .storefront h1{color:#713e2c}.storefront p{max-width:650px;margin:8px auto}
+    form{display:flex;gap:10px}input,button{font:inherit;border-radius:10px;padding:13px 15px}input{min-width:0;border:2px solid #bba58c;flex:1;background:#fff}
+    button{border:0;background:#a73e31;color:white;cursor:pointer;font-weight:700}button:hover{background:#872f27}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #d48012;outline-offset:3px}
+    .search-box{border-top:7px solid #b58453}.search-box h2{color:#714a2c}.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr;gap:15px;margin-top:14px}.result-row{min-width:0;display:flex;flex-direction:column;gap:0;border-radius:15px;border:1px solid #d7c4aa;border-bottom:8px solid #ad784a;box-shadow:0 5px 0 #e2c5a1;overflow:hidden}.result-row .choice{width:100%;min-height:120px;flex:1 1 auto;text-align:left;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px;border-radius:0;color:#372b23;overflow-wrap:anywhere}.result-row .choice:hover{filter:brightness(.97)}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{border-radius:14px;padding:18px;background:#f5efe4}.metric strong{display:block;font-size:1.6rem;margin:9px 0}.metric em{font-style:normal;font-weight:700}
+    .high{background:#ffe5e3;color:#8b1a16}.medium{background:#fff0c9;color:#6f4c00}.low{background:#dcefff;color:#064e7c}.unknown{background:#eef1f3;color:#40515d}
+    .fair-status{border-radius:14px;padding:16px 18px;margin:0 0 20px;font-size:1.2rem;font-weight:800}.fair-yes{background:#dff4e7;color:#145c34;border:2px solid #6bb88b}.fair-no{background:#ffe5e3;color:#8b1a16;border:2px solid #d77a73}.fair-tag{font-size:.85rem;font-weight:800;white-space:normal;padding:5px 9px;border-radius:8px}.choice .fair-yes,.choice .fair-no{border-width:1px}.choice.fair-yes:hover{background:#c9ebd5}.choice.fair-no:hover{background:#fad4d0}
+    .age{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.age label{font-weight:600}.age input,.age select{display:block;margin-top:6px;font:inherit;padding:12px;border:2px solid #9bb2c0;border-radius:10px;background:white}
+    small{font-size:.85rem;line-height:1.5}a{color:#075b84}summary{cursor:pointer;font-weight:700}#status{min-height:1.5em}
+    .filter{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-weight:600;cursor:pointer}.filter input{width:20px;height:20px;min-width:20px;flex:none;margin:0;accent-color:#a73e31}
+    .compare-button{width:100%;border-radius:0;background:#714a2c;white-space:normal;padding:10px 14px}.compare-button:hover{background:#54351f}button:disabled{opacity:.55;cursor:not-allowed}
+    .compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.compare-card{border:1px solid #d1b596;border-bottom:7px solid #ad784a;border-radius:14px;padding:16px;min-width:0}.compare-card h3{margin:0 0 8px;overflow-wrap:anywhere}.compare-card .metric{margin:8px 0;padding:12px}.compare-card .metric strong{font-size:1.25rem}.compare-card .remove-button{margin-top:8px;background:#714a2c}
+    .original-name{display:block;color:#4c6270;font-size:.8em;font-weight:400;margin-top:3px;overflow-wrap:anywhere}
+    #compareNote{margin-bottom:12px}
+    @media(max-width:760px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:650px){.storefront{padding:76px 20px 25px}form,.grid,.compare-grid{display:block}form button{width:100%;margin-top:10px}.metric,.compare-card{margin-top:10px}.results{grid-template-columns:1fr}.result-row .choice{min-height:105px}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="storefront">
+    <h1>한눈에 알아보는 간식 정보</h1>
+    <p class="muted">실제 제품명으로 열량·당류·카페인과 공정무역 표기 정보를 살펴보세요.</p>
+    <p>검색 결과는 <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener">Open Food Facts</a>의 공개 제품 데이터에서 가져옵니다.</p>
+  </header>
+
+  <section class="box search-box" aria-label="제품 검색">
+    <h2>매점 진열대에서 찾기</h2>
+    <form id="searchForm">
+      <input id="query" aria-label="제품 이름" placeholder="예: 초콜릿, 커피, Nutella">
+      <button>검색</button>
+    </form>
+    <label class="filter"><input id="fairOnly" type="checkbox">공정무역 표기 제품만 보기</label>
+    <p id="status" role="status"></p>
+    <div id="results" class="results"></div>
+  </section>
+
+  <section id="detail" class="box" hidden aria-live="polite"></section>
+
+  <section id="compareSection" class="box" hidden aria-live="polite">
+    <h2>상품 비교</h2>
+    <p class="muted" id="compareNote"></p>
+    <div id="compareProducts" class="compare-grid"></div>
+  </section>
+
+  <section class="box" aria-label="비교 기준 설정">
+    <h2>비교 기준 설정</h2>
+    <div class="age">
+      <label>연령대<select id="age"><option value="adult">성인 (19세 이상)</option><option value="young">어린이·청소년 (18세 이하)</option></select></label>
+      <label id="pregnancyLabel">임신 중인가요?<select id="pregnancy"><option value="no">아니요</option><option value="yes">예</option></select></label>
+      <label id="weightLabel" hidden>체중 (kg)<input id="weight" type="number" min="1" max="300" placeholder="예: 50"></label>
+    </div>
+    <p class="muted" id="referenceNote"></p>
+  </section>
+
+  <details class="box">
+    <summary>공정무역이란?</summary>
+    <p>공정무역은 생산자에게 더 공정한 거래 조건을 제공하고, 노동자의 권리와 지속 가능한 생산을 지원하려는 방식입니다. 실제 인증 여부는 제품 포장과 인증 기관 정보를 함께 확인하세요.</p>
+  </details>
+  <details class="box">
+    <summary>윤리적 소비가 중요한 이유</summary>
+    <p>우리가 무엇을 사는지는 생산 과정에도 영향을 줍니다. 노동자의 권리와 안전, 환경을 고려해 만든 제품을 살펴보는 것은 더 책임 있는 생산을 응원하는 방법입니다. 공정무역 마크를 확인하고 필요한 만큼 구매하는 작은 선택부터 시작할 수 있습니다.</p>
+  </details>
+  <small class="muted">제품 데이터: <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener">Open Food Facts</a>. 영어 상품명 번역: <a href="https://mymemory.translated.net/" target="_blank" rel="noopener">MyMemory</a>. 자동 번역이 부정확하거나 제공되지 않을 수 있어 원문도 함께 표시합니다. 공정무역 표기는 이 데이터베이스의 라벨 항목이며 공식 인증 조회 결과가 아닙니다. 제품 포장이나 인증 기관에서 확인하세요.<br>비교 기준 출처: <a href="https://impfood.mfds.go.kr/CFBBB02F02/getCntntsDetail?cntntsSn=282128" target="_blank" rel="noopener">식약처 당류 영양표시 기준</a> · <a href="https://mfds.go.kr/brd/m_227/view.do?seq=27563" target="_blank" rel="noopener">식약처 카페인 섭취 권고량</a> · <a href="https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfo/gnrlzHealthInfoView.do?cntnts_sn=6763" target="_blank" rel="noopener">질병관리청 영양표시 안내</a></small>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let selected;
+let searchNumber = 0;
+const RESULT_LIMIT = 6;
+const productCache = new Map();
+const compareSelection = [];
+let compareButtons = [];
+let compareLoading = null;
+const translationCache = new Map();
+function translateText(value, from, to) {
+  const key = `${from}:${to}:${value}`;
+  if (!translationCache.has(key)) {
+    const params = new URLSearchParams({q:value,langpair:`${from}|${to}`});
+    const task = fetch(`https://api.mymemory.translated.net/get?${params}`)
+      .then(response => response.ok ? response.json() : null)
+      .then(data => data?.responseStatus === 200 && !data.quotaFinished ? data.responseData?.translatedText?.trim() || null : null)
+      .catch(() => null);
+    translationCache.set(key, task);
+  }
+  return translationCache.get(key);
+}
+async function nameParts(product) {
+  const korean = product.product_name_ko?.trim();
+  if (korean) return {name:korean,originalName:''};
+  const original = product.product_name_en?.trim() || product.product_name?.trim() || '이름 없는 제품';
+  if (original.length > 160 || !/[a-z]/i.test(original) || /[^\x20-\x7e]/.test(original)) return {name:original,originalName:''};
+  const translated = await translateText(original, 'en', 'ko');
+  return translated && /[가-힣]/.test(translated) && translated !== original
+    ? {name:translated,originalName:original}
+    : {name:original,originalName:''};
+}
+const nameHtml = product => `${esc(product.name)}${product.originalName ? `<small class="original-name">원문: ${esc(product.originalName)}</small>` : ''}`;
+const numberOrNull = value => value === null || value === undefined || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+function normalize(product, names) {
+  const n = product.nutriments || {};
+  const tags = Array.isArray(product.labels_tags) ? product.labels_tags : [];
+  const energy = numberOrNull(n['energy-kcal_100g']);
+  const kilojoules = numberOrNull(n.energy_100g);
+  return {
+    ...names,
+    brand: Array.isArray(product.brands) ? product.brands.join(', ') : product.brands || '',
+    code: product.code,
+    kcal: energy ?? (kilojoules === null ? null : kilojoules / 4.184),
+    sugar: numberOrNull(n.sugars_100g),
+    caffeine: numberOrNull(n.caffeine_100g) === null ? null : Number(n.caffeine_100g) * 1000,
+    fair: tags.includes('en:fair-trade')
+  };
+}
+const references = () => $('age').value === 'adult'
+  ? [2000,100,$('pregnancy').value === 'yes' ? 300 : 400]
+  : [null,null,Number($('weight').value) > 0 ? Number($('weight').value) * 2.5 : null];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function metric(label, value, unit, limit) {
+  if (value === null) return `<div class="metric unknown"><span>${label}</span><strong>정보 없음</strong><em>판정 불가</em></div>`;
+  const amount = `<span>${label}</span><strong>${value.toLocaleString('ko-KR',{maximumFractionDigits:1})} ${unit}</strong>`;
+  if (limit === null) return `<div class="metric unknown">${amount}<em>연령별 기준 적용 불가</em></div>`;
+  const ratio = value / limit;
+  const [color, word] = ratio >= .5 ? ['high','50% 이상'] : ratio >= .2 ? ['medium','20~49%'] : ['low','20% 미만'];
+  return `<div class="metric ${color}">${amount}<em>하루 기준 ${word}</em></div>`;
+}
+
+function show(product) {
+  selected = product;
+  const [cal,sugar,caf] = references();
+  $('detail').innerHTML = `<div class="fair-status ${product.fair ? 'fair-yes' : 'fair-no'}" role="status">${product.fair ? '공정무역 표기 정보 있음' : '공정무역 표기 정보 없음'} <small>(Open Food Facts 등록 정보)</small></div>
+    <h2>${nameHtml(product)}</h2>
+    <p class="muted">${product.brand ? esc(product.brand) + ' · ' : ''}영양정보는 100g 또는 100ml 기준입니다. 제품 1개당 함량이 아닙니다.</p>
+    <div class="grid">
+      ${metric('열량',product.kcal,'kcal',cal)}
+      ${metric('당류',product.sugar,'g',sugar)}
+      ${metric('카페인',product.caffeine,'mg',caf)}
+    </div>
+    <p class="muted"><small>색상은 이 기준량과 하루 참고치의 비율입니다: 빨강 50% 이상, 노랑 20~49%, 파랑 20% 미만. 누락된 값은 0이 아닙니다.</small></p>
+    <p><a href="https://world.openfoodfacts.org/product/${encodeURIComponent(product.code)}" target="_blank" rel="noopener">원본 제품 정보 보기</a></p>
+    <p class="muted"><small>제품 포장의 영양표시와 공정무역 인증 마크를 다시 확인하세요.</small></p>`;
+  $('detail').hidden = false;
+}
+
+function loadProduct(hit) {
+  if (!productCache.has(hit.code)) {
+    const params = new URLSearchParams({fields:'code,product_name,product_name_ko,product_name_en,brands,nutriments,labels_tags'});
+    const task = fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(hit.code)}.json?${params}`)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(async data => {
+        if (data.status !== 1 || !data.product) throw new Error('Product missing');
+        return normalize(data.product, await nameParts(data.product));
+      });
+    productCache.set(hit.code, task);
+    task.catch(() => productCache.delete(hit.code));
+  }
+  return productCache.get(hit.code);
+}
+
+function updateCompareButtons() {
+  compareButtons.forEach(({code,button}) => {
+    const chosen = compareSelection.some(product => product.code === code);
+    button.textContent = chosen ? '비교에서 빼기' : '비교에 담기';
+    button.disabled = compareLoading !== null || (!chosen && compareSelection.length >= 2);
+    button.setAttribute('aria-pressed', String(chosen));
+  });
+}
+
+function renderComparison() {
+  const area = $('compareProducts');
+  area.replaceChildren();
+  $('compareSection').hidden = compareSelection.length === 0;
+  if (!compareSelection.length) return;
+  $('compareNote').textContent = compareSelection.length === 1
+    ? '검색 결과에서 상품을 하나 더 선택하세요. 다른 이름으로 검색해도 선택한 상품은 유지됩니다.'
+    : '영양 수치는 각 상품의 100g 또는 100ml 기준입니다. 두 상품의 기준 단위를 확인하고 비교하세요.';
+  const [cal,sugar,caf] = references();
+  compareSelection.forEach(product => {
+    const card = document.createElement('article');
+    card.className = `compare-card ${product.fair ? 'fair-yes' : 'fair-no'}`;
+    card.innerHTML = `<h3>${nameHtml(product)}</h3>
+      <p>${product.brand ? esc(product.brand) + ' · ' : ''}<span class="fair-tag ${product.fair ? 'fair-yes' : 'fair-no'}">${product.fair ? '공정무역 표기 정보 있음' : '공정무역 표기 정보 없음'}</span></p>
+      ${metric('열량',product.kcal,'kcal',cal)}
+      ${metric('당류',product.sugar,'g',sugar)}
+      ${metric('카페인',product.caffeine,'mg',caf)}`;
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'remove-button';
+    remove.textContent = '비교에서 빼기';
+    remove.onclick = () => {
+      compareSelection.splice(compareSelection.findIndex(item => item.code === product.code), 1);
+      renderComparison();
+      updateCompareButtons();
+    };
+    card.append(remove);
+    area.append(card);
+  });
+}
+
+async function toggleComparison(hit) {
+  const index = compareSelection.findIndex(product => product.code === hit.code);
+  if (index >= 0) {
+    compareSelection.splice(index, 1);
+    renderComparison();
+    updateCompareButtons();
+    return;
+  }
+  if (compareSelection.length >= 2 || compareLoading !== null) return;
+  compareLoading = hit.code;
+  updateCompareButtons();
+  $('status').textContent = '비교할 상품 정보를 불러오는 중입니다…';
+  try {
+    const product = await loadProduct(hit);
+    if (compareSelection.length < 2 && !compareSelection.some(item => item.code === product.code)) compareSelection.push(product);
+    renderComparison();
+    $('status').textContent = '비교할 상품을 담았습니다.';
+  } catch {
+    $('status').textContent = '상품 정보를 불러오지 못했습니다. 다시 시도해 주세요.';
+  } finally {
+    compareLoading = null;
+    updateCompareButtons();
+  }
+}
+
+async function search(query) {
+  const term = query.trim();
+  const fairOnly = $('fairOnly').checked;
+  const currentSearch = ++searchNumber;
+  selected = null;
+  $('results').replaceChildren();
+  compareButtons = [];
+  $('detail').hidden = true;
+  if (!term && !fairOnly) {
+    $('status').textContent = '제품명을 입력하거나 공정무역 표기 제품만 보기를 선택하세요. 인터넷 연결이 필요합니다.';
+    return;
+  }
+  if (location.protocol === 'file:') {
+    $('status').textContent = '이 파일을 직접 열면 브라우저가 검색 요청을 차단합니다. start-app.cmd를 실행해 앱을 열어 주세요.';
+    return;
+  }
+  $('status').textContent = '실제 제품 정보를 검색 중입니다…';
+  const fairQuery = 'categories:"en:snacks" labels:"en:fair-trade"';
+  const apiQuery = fairOnly ? (term ? `${term} labels:"en:fair-trade"` : fairQuery) : term;
+  const fetchHits = async (q, popular = false) => {
+    const params = new URLSearchParams({q,page_size:'20',fields:'code,product_name,product_name_ko,product_name_en,brands,labels'});
+    params.append('langs', 'ko');
+    params.append('langs', 'en');
+    if (popular) params.set('sort_by', '-unique_scans_n');
+    const response = await fetch(`https://search.openfoodfacts.org/search?${params}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return (data.hits || []).filter(p => p.code && (p.product_name || p.product_name_ko || p.product_name_en) && (!fairOnly || (Array.isArray(p.labels) && p.labels.includes('en:fair-trade'))));
+  };
+  try {
+    const found = (await fetchHits(apiQuery, fairOnly && !term)).slice(0, RESULT_LIMIT);
+    if (currentSearch !== searchNumber) return;
+    if (term && /[가-힣]/.test(term) && found.length < RESULT_LIMIT) {
+      const english = await translateText(term, 'ko', 'en');
+      if (currentSearch !== searchNumber) return;
+      if (english && /[a-z]/i.test(english) && english.toLowerCase() !== term.toLowerCase()) {
+        try {
+          const translatedHits = await fetchHits(fairOnly ? `${english} labels:"en:fair-trade"` : english);
+          if (currentSearch !== searchNumber) return;
+          for (const item of translatedHits) {
+            if (found.length === RESULT_LIMIT) break;
+            if (!found.some(existing => existing.code === item.code)) found.push(item);
+          }
+        } catch { /* 한국어 검색 결과는 계속 표시합니다. */ }
+      }
+    }
+    const matchedCount = found.length;
+    if (fairOnly && term && found.length < RESULT_LIMIT) {
+      try {
+        const suggestions = await fetchHits(fairQuery, true);
+        if (currentSearch !== searchNumber) return;
+        for (const item of suggestions) {
+          if (found.length === RESULT_LIMIT) break;
+          if (!found.some(existing => existing.code === item.code)) found.push(item);
+        }
+      } catch { /* 검색어와 일치하는 결과는 계속 표시합니다. */ }
+    }
+    await Promise.all(found.map(async product => Object.assign(product, await nameParts(product))));
+    if (currentSearch !== searchNumber) return;
+    $('status').textContent = found.length
+      ? fairOnly && term && matchedCount < found.length
+        ? `검색어와 일치하는 공정무역 표기 제품 ${matchedCount}개와 다른 공정무역 표기 제품 ${found.length - matchedCount}개를 보여 줍니다.`
+        : `비슷한 ${fairOnly ? '공정무역 표기 ' : ''}제품 ${found.length}개를 보여 줍니다. 제품을 선택하세요.`
+      : fairOnly ? '공정무역 표기가 등록된 제품을 불러오지 못했습니다. 다시 시도해 주세요.' : '일치하는 제품이 없습니다. 다른 제품명이나 브랜드로 검색해 보세요.';
+    found.forEach(p => {
+      const fair = Array.isArray(p.labels) && p.labels.includes('en:fair-trade');
+      const brand = Array.isArray(p.brands) ? p.brands.map(b => b.replace(/^xx:/, '')).join(', ') : p.brands || '';
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      const button = document.createElement('button');
+      button.className = `choice ${fair ? 'fair-yes' : 'fair-no'}`;
+      button.innerHTML = `<span>${nameHtml(p)}${brand ? ' · ' + esc(brand) : ''}</span><span class="fair-tag ${fair ? 'fair-yes' : 'fair-no'}">${fair ? '공정무역 표기 있음' : '공정무역 표기 정보 없음'}</span>`;
+      button.onclick = async () => {
+        $('status').textContent = '제품 영양정보를 불러오는 중입니다…';
+        try {
+          const product = await loadProduct(p);
+          if (currentSearch !== searchNumber) return;
+          show(product);
+          $('status').textContent = '제품 정보를 불러왔습니다.';
+        } catch (error) {
+          if (currentSearch === searchNumber) $('status').textContent = '이 제품의 상세 정보를 불러오지 못했습니다. 잠시 뒤 다시 선택해 주세요.';
+        }
+      };
+      const compare = document.createElement('button');
+      compare.type = 'button';
+      compare.className = 'compare-button';
+      compare.onclick = () => toggleComparison(p);
+      compareButtons.push({code:p.code,button:compare});
+      row.append(button, compare);
+      $('results').append(row);
+    });
+    updateCompareButtons();
+  } catch (error) {
+    if (currentSearch === searchNumber) $('status').textContent = `검색 서버가 응답하지 않습니다${error.message.startsWith('HTTP ') ? ' (' + error.message + ')' : ''}. 인터넷 연결을 확인하고 잠시 뒤 다시 검색해 주세요.`;
+  }
+}
+$('searchForm').addEventListener('submit', event => {
+  event.preventDefault();
+  search($('query').value.trim());
+});
+$('fairOnly').addEventListener('change', () => {
+  search($('query').value);
+});
+function updateAge() {
+  const young = $('age').value === 'young';
+  $('pregnancyLabel').hidden = young;
+  $('weightLabel').hidden = !young;
+  $('referenceNote').textContent = young
+    ? '어린이·청소년의 카페인 권고량은 체중 1kg당 하루 2.5mg입니다. 체중을 입력하면 계산합니다. 열량·당류는 나이만으로 공식 개인 기준을 정할 수 없어 수치만 보여 줍니다.'
+    : `열량 2,000kcal·당류 100g은 성인 영양표시용 하루 참고치입니다. 식약처 카페인 하루 최대 섭취 권고량은 ${$('pregnancy').value === 'yes' ? '임신 중 300mg' : '성인 400mg'}입니다.`;
+  if (selected) show(selected);
+  renderComparison();
+}
+$('age').addEventListener('change', updateAge);
+$('pregnancy').addEventListener('change', updateAge);
+$('weight').addEventListener('input', updateAge);
+updateAge();
+search('');
+</script>
+</body>
+</html>
